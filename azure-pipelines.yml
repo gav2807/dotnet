@@ -1,0 +1,191 @@
+trigger:
+- main
+
+pool:
+  name: self
+
+variables:
+  appName: optix-app
+  tag: 1
+
+stages:
+- stage: Build
+  displayName: 'Build and Test'
+  jobs:
+  - job: Build
+    displayName: 'Build and Test'
+    steps:
+    - task: DockerInstaller@0
+      inputs:
+        dockerVersion: '17.09.0-ce'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'azure-cr'
+        repository: 'optix-app'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: $(Build.BuildId)
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: '**/*.yaml'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'artifact'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: Deploy image
+  jobs:  
+  - job: Deploy
+    displayName: Deploy
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'artifact'
+        itemPattern: '**/*.yaml'
+        targetPath: '$(System.ArtifactsDirectory)'
+
+    - task: KubectlInstaller@0
+      inputs:
+        kubectlVersion: 'latest'
+
+    - task: KubernetesManifest@1
+      inputs:
+        action: 'deploy'
+        connectionType: 'kubernetesServiceConnection'
+        kubernetesServiceConnection: 'AKS-k8scluster-svc'
+        namespace: 'default'
+        manifests: '$(System.ArtifactsDirectory)/manifest/deployment.yaml'
+        containers: 'optix-app:$(tag)'
+    # - script: |
+    #     docker build -t $(appName):$(Build.BuildId) .
+    #   displayName: 'Build Docker Image'
+    #   continueOnError: false
+
+    # - task: PublishBuildArtifacts@1
+    #   inputs:
+    #     PathtoPublish: '$(Build.SourcesDirectory)/testresults'
+    #     ArtifactName: 'testresults'
+    #   condition: always()
+
+# - stage: Deploy
+#   displayName: 'Deploy to Kubernetes'
+#   dependsOn: Build
+#   jobs:
+#   - deployment: Deploy
+#     displayName: 'Deploy to Kubernetes'
+#     environment: 'mykubernetescluster'
+#     pool:
+#       vmImage: 'ubuntu-latest'
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
+#           - script: |
+#               # Here, you'll need to add the necessary commands to deploy the Helm chart to your Kubernetes cluster.
+#               # The exact commands will depend on your Kubernetes environment and Helm configuration.
+#             echo 'Deploy the Helm chart here'
+#           displayName: 'Deploy Helm Chart'
+
+
+# trigger:
+# - master
+
+# resources:
+# - repo: self
+
+# variables:
+#   tag: '$(Build.BuildId)'
+
+# stages:
+# - stage: Build
+#   displayName: Build image
+#   jobs:  
+#   - job: Build
+#     displayName: Build
+#     pool:
+#       vmImage: 'ubuntu-latest'
+#     steps:
+#     - task: Docker@2
+#       inputs:
+#         containerRegistry: 'docker_hub'
+#         repository: 'iheanacho/hello_rest_api'
+#         command: 'buildAndPush'
+#         Dockerfile: '**/Dockerfile'
+#         tags: '$(tag)'
+    
+#     - task: CopyFiles@2
+#       inputs:
+#         SourceFolder: '$(System.DefaultWorkingDirectory)'
+#         Contents: '**/*.yaml'
+#         TargetFolder: '$(Build.ArtifactStagingDirectory)'
+#     - task: PublishBuildArtifacts@1
+#       inputs:
+#         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#         ArtifactName: 'helloartifact'
+#         publishLocation: 'Container'
+# - stage: Deploy
+#   displayName: Deploy image
+#   jobs:  
+#   - job: Deploy
+#     displayName: Deploy
+#     pool:
+#       vmImage: 'ubuntu-latest'
+#     steps:
+#     - task: DownloadPipelineArtifact@2
+#       inputs:
+#         buildType: 'current'
+#         artifactName: 'helloartifact'
+#         itemPattern: '**/*.yaml'
+#         targetPath: '$(System.ArtifactsDirectory)'
+#     - task: KubernetesManifest@0
+#       inputs:
+#         action: 'deploy'
+#         kubernetesServiceConnection: 'AKS-k8scluster-svc'
+#         namespace: 'default'
+#         manifests: '$(System.ArtifactsDirectory)/configuration/k8s/deployment.yaml'
+#         containers: 'iheanacho/hello_rest_api:$(tag)'
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# trigger:
+# - master
+
+# pool:
+#   name: self
+
+# variables:
+#   tag: '$(Build.BuildId)'
+
+# stages:
+# - stage: Build
+#   displayName: Build image
+#   jobs:  
+#   - job: Build
+#     displayName: Build
+#     pool:
+#       name: self
+#     steps:
+#     - task: Docker@2
+#       inputs:
+#         containerRegistry: 'azuredevops'
+#         repository: 'gavriel8080/repro'
+#         command: 'buildAndPush'
+#         Dockerfile: '**/Dockerfile'
+#         tags: '$(tag)'

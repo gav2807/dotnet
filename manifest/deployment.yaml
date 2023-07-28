@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-deployment
+  labels:
+    app: optix-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: optix-app
+  template:
+    metadata:
+      labels:
+        app: optix-app
+    spec:
+      imagePullSecrets:
+      - name: acr-secret
+      containers:
+      - name: optix-app
+        image: optix.azurecr.io/optix-app:1
+
+---        
+apiVersion: v1
+kind: Service
+metadata:
+  name: optix-app
+  namespace: default
+spec:
+  ports:
+  - nodePort: 32767
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: optix-app
+  sessionAffinity: None
+  type: LoadBalancer
