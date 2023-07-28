@@ -18,7 +18,7 @@ spec:
       - name: acr-secret
       containers:
       - name: optix-app
-        image: optix.azurecr.io/optix-app:247
+        image: optix.azurecr.io/optix-app:249
 
 ---        
 apiVersion: v1
@@ -28,7 +28,7 @@ metadata:
   namespace: default
 spec:
   ports:
-  - nodePort: 32767
+  - nodePort: 3200
     port: 5000
     protocol: TCP
     targetPort: 5000
