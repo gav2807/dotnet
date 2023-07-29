@@ -58,7 +58,7 @@ stages:
         action: 'deploy'
         connectionType: 'kubernetesServiceConnection'
         kubernetesServiceConnection: 'AKS-k8scluster-svc'
-        namespace: 'default'
+        namespace: 'ingress-nginx'
         manifests: '$(System.ArtifactsDirectory)/manifest/deployment.yaml'
         containers: 'optix-app:$(tag)'
     # - script: |
