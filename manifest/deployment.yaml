@@ -18,8 +18,8 @@ spec:
       - name: acr-secret
       containers:
       - name: optix-app
-        image: mcr.microsoft.com/dotnet/samples:aspnetapp
-        #image: optix.azurecr.io/optix-app:286
+        image: optix.azurecr.io/optix-app:aspnetapp
+
 ---        
 apiVersion: v1
 kind: Service
