@@ -18,7 +18,7 @@ spec:
       - name: acr-secret
       containers:
       - name: optix-app
-        image: optix.azurecr.io/optix-app:latest
+        image: mcr.microsoft.com/dotnet/samples:dotnetapp
 
 ---        
 apiVersion: v1
