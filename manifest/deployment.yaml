@@ -19,7 +19,7 @@ spec:
       containers:
       - name: optix-app
         #image: mcr.microsoft.com/dotnet/samples:aspnetapp
-        image: optix.azurecr.io/optix-app:283
+        image: optix.azurecr.io/optix-app:286
 ---        
 apiVersion: v1
 kind: Service
